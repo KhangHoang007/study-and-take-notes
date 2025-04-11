@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học cùng Flashcard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #fff0f5, #e6f7ff);
+      color: #333;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: 1.8em;
+      font-weight: bold;
+      text-align: center;
+      flex-grow: 1;
+    }
+    .btn {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff69b4;
+      color: white;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #ff1493;
+    }
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="btn" onclick="window.location.href='https://translate.google.com/?hl=vi'">Dịch từ</button>
+    <div class="title">Học cùng flashcard</div>
+    <button class="btn" onclick="window.location.href='learn.html'">Học</button>
+  </header>
+
+  <div class="flex-row">
+    <input type="text" id="wordInput" placeholder="Từ">
+    <input type="text" id="meaningInput" placeholder="Nghĩa">
+  </div>
+  <div class="flex-row">
+    <button class="btn" onclick="saveFlashcard()">Lưu</button>
+  </div>
+
+  <h3>Lịch sử từ vựng</h3>
+  <table id="flashcardTable">
+    <tr><th>Từ</th><th>Nghĩa</th><th></th></tr>
+  </table>
+
+  <div class="bottom-bar">
+    <button class="btn" onclick="window.location.href='dashboard.html'">← Quay lại</button>
+  </div>
+
+  <script>
+    let flashcards = JSON.parse(localStorage.getItem('flashcards')) || [];
+
+    function renderFlashcards() {
+      const table = document.getElementById('flashcardTable');
+      table.innerHTML = '<tr><th>Từ</th><th>Nghĩa</th><th></th></tr>';
+      flashcards.forEach((card, index) => {
+        const row = table.insertRow();
+        row.insertCell(0).innerText = card.word;
+        row.insertCell(1).innerText = card.meaning;
+        const removeBtn = document.createElement('button');
+        removeBtn.innerText = 'X';
+        removeBtn.className = 'btn';
+        removeBtn.style.backgroundColor = '#dc3545';
+        removeBtn.onclick = () => removeFlashcard(index);
+        row.insertCell(2).appendChild(removeBtn);
+      });
+    }
+
+    function saveFlashcard() {
+      const word = document.getElementById('wordInput').value.trim();
+      const meaning = document.getElementById('meaningInput').value.trim();
+      if (!word || !meaning) return alert('Vui lòng nhập đầy đủ từ và nghĩa.');
+      flashcards.push({ word, meaning });
+      localStorage.setItem('flashcards', JSON.stringify(flashcards));
+      document.getElementById('wordInput').value = '';
+      document.getElementById('meaningInput').value = '';
+      renderFlashcards();
+    }
+
+    function removeFlashcard(index) {
+      flashcards.splice(index, 1);
+      localStorage.setItem('flashcards', JSON.stringify(flashcards));
+      renderFlashcards();
+    }
+
+    renderFlashcards();
+  </script>
+</body>
+</html>

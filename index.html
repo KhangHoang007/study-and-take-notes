@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng Nhập / Tạo Tài Khoản</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media (min-aspect-ratio: 1/1) {
+      body { background-image: url('./background_pc.jpg'); }
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      body { background-image: url('./background_mobile.jpg'); }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff69b4;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .hidden { display: none; }
+    label { display: block; text-align: left; margin-left: 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <audio autoplay loop>
+    <source src="https://files.catbox.moe/kqtizv.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="container" id="loginContainer">
+    <h2>Đăng Nhập</h2>
+    <input type="text" id="loginName" placeholder="Tên đăng nhập hoặc Gmail" />
+    <input type="password" id="loginPassword" placeholder="Mật khẩu" />
+    <label><input type="checkbox" id="showPassword"> Hiển thị mật khẩu</label>
+    <label><input type="checkbox" id="rememberMe"> Ghi nhớ tài khoản</label>
+    <button onclick="login()">Đăng nhập</button>
+    <p>Chưa có tài khoản? <a href="#" onclick="switchToRegister()">Tạo tài khoản</a></p>
+  </div>
+
+  <div class="container hidden" id="registerContainer">
+    <h2>Tạo Tài Khoản</h2>
+    <input type="email" id="registerEmail" placeholder="Gmail" required />
+    <input type="password" id="registerPassword" placeholder="Mật khẩu" required />
+    <input type="text" id="registerUsername" placeholder="Tên đăng nhập" maxlength="35" required />
+    <button onclick="register()">Tạo tài khoản</button>
+    <p>Đã có tài khoản? <a href="#" onclick="switchToLogin()">Đăng nhập</a></p>
+  </div>
+
+  <div class="container hidden" id="welcomeContainer">
+    <h2>Xin chào <span id="userDisplay"></span>!</h2>
+    <button onclick="confirmDelete()">Xóa tài khoản</button>
+    <button onclick="window.location.href='dashboard.html'">Chuyển đến Dashboard ➤</button>
+  </div>
+
+  <script>
+    const userKey = 'user';
+
+    document.getElementById('showPassword').addEventListener('change', function () {
+      const pw = document.getElementById('loginPassword');
+      pw.type = this.checked ? 'text' : 'password';
+    });
+
+    if (localStorage.getItem('rememberMe') === 'true') {
+      const user = JSON.parse(localStorage.getItem(userKey));
+      if (user) {
+        document.getElementById('loginName').value = user.username || user.email;
+        document.getElementById('loginPassword').value = user.password;
+        document.getElementById('rememberMe').checked = true;
+      }
+    }
+
+    function switchToRegister() {
+      document.getElementById('loginContainer').classList.add('hidden');
+      document.getElementById('registerContainer').classList.remove('hidden');
+    }
+
+    function switchToLogin() {
+      document.getElementById('registerContainer').classList.add('hidden');
+      document.getElementById('loginContainer').classList.remove('hidden');
+    }
+
+    function register() {
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const username = document.getElementById('registerUsername').value;
+
+      if (/[^a-zA-Z\s]/.test(username)) {
+        alert('Tên đăng nhập chỉ được chứa chữ cái và khoảng trắng.');
+        return;
+      }
+
+      const user = { email, password, username };
+      localStorage.setItem(userKey, JSON.stringify(user));
+      alert('Đăng ký thành công!');
+      switchToLogin();
+    }
+
+    function login() {
+      const name = document.getElementById('loginName').value;
+      const password = document.getElementById('loginPassword').value;
+      const saved = JSON.parse(localStorage.getItem(userKey));
+
+      if (!saved || (saved.email !== name && saved.username !== name) || saved.password !== password) {
+        alert('Sai thông tin đăng nhập.');
+        return;
+      }
+
+      if (document.getElementById('rememberMe').checked) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
+
+      document.getElementById('loginContainer').classList.add('hidden');
+      document.getElementById('welcomeContainer').classList.remove('hidden');
+      document.getElementById('userDisplay').textContent = saved.username;
+    }
+
+    function confirmDelete() {
+      const choice = confirm('Bạn có chắc chắn muốn xóa tài khoản này?');
+      if (choice) {
+        localStorage.removeItem(userKey);
+        localStorage.removeItem('rememberMe');
+        alert('Tài khoản đã bị xóa.');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
