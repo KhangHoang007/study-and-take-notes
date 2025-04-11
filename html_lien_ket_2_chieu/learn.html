@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiểm tra bằng Flashcard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f0fff0, #fff0f5);
+      padding: 20px;
+      color: #333;
+    }
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 30px;
+    }
+    .title {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+    .back-button {
+      position: absolute;
+      left: 0;
+      top: 0;
+      padding: 10px 16px;
+      border: none;
+      background-color: #ffc0cb;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .card-box {
+      text-align: center;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    #result {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    #completeBox {
+      display: none;
+      margin-top: 30px;
+      text-align: center;
+    }
+    #completeBox button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #32cd32;
+      color: white;
+      cursor: pointer;
+    }
+    .flash-effect {
+      animation: flash 0.3s ease-in-out;
+    }
+    @keyframes flash {
+      0% { background-color: #fff; }
+      50% { background-color: #ffffcc; }
+      100% { background-color: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="back-button" onclick="confirmBack()">←</button>
+    <div class="title">Kiểm tra bằng Flashcard</div>
+  </header>
+
+  <div class="card-box">
+    <div><strong>Từ:</strong> <span id="currentWord"></span></div>
+    <input type="text" id="answerInput" placeholder="Nhập nghĩa...">
+    <div id="result"></div>
+  </div>
+
+  <div id="completeBox">
+    <p>🎉 Bạn đã hoàn thành xong bài kiểm tra Flashcard!</p>
+    <button onclick="window.location.href='flashcard.html'">Oke</button>
+  </div>
+
+  <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_8c8b4ed8b1.mp3?filename=correct-2-46134.mp3"></audio>
+  <audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_eaad0f3e0f.mp3?filename=wrong-2-46133.mp3"></audio>
+
+  <script>
+    const flashcards = JSON.parse(localStorage.getItem('flashcards')) || [];
+    let currentIndex = 0;
+
+    const wordDisplay = document.getElementById('currentWord');
+    const answerInput = document.getElementById('answerInput');
+    const resultDiv = document.getElementById('result');
+    const completeBox = document.getElementById('completeBox');
+    const correctSound = document.getElementById('correctSound');
+    const wrongSound = document.getElementById('wrongSound');
+
+    function showCard() {
+      if (currentIndex >= flashcards.length) {
+        document.querySelector('.card-box').style.display = 'none';
+        completeBox.style.display = 'block';
+        return;
+      }
+      wordDisplay.textContent = flashcards[currentIndex].word;
+      answerInput.value = '';
+      resultDiv.textContent = '';
+    }
+
+    answerInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const userAnswer = answerInput.value.trim().toLowerCase();
+        const correctAnswer = flashcards[currentIndex].meaning.trim().toLowerCase();
+
+        answerInput.classList.add('flash-effect');
+        setTimeout(() => answerInput.classList.remove('flash-effect'), 300);
+
+        if (userAnswer === correctAnswer) {
+          correctSound.play();
+          resultDiv.style.color = 'green';
+          resultDiv.textContent = '✅ Bạn trả lời đúng rồi!';
+          currentIndex++;
+          setTimeout(showCard, 1000);
+        } else {
+          wrongSound.play();
+          resultDiv.style.color = 'red';
+          resultDiv.textContent = `❌ Tiếc quá, thử lại nhé! Nghĩa đúng: ${flashcards[currentIndex].meaning}`;
+        }
+      }
+    });
+
+    function confirmBack() {
+      const yes = confirm('Bạn có chắc muốn quay lại trang Học cùng flashcard?');
+      if (yes) {
+        window.location.href = 'flashcard.html';
+      }
+    }
+
+    showCard();
+  </script>
+</body>
+</html>

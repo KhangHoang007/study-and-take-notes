@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Notes - Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('./background_pc.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    header {
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .left-buttons button, .right-info {
+      margin: 5px;
+    }
+    .container {
+      padding: 20px;
+    }
+    textarea, input[type="text"], input[type="time"], input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff69b4;
+      color: white;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <audio autoplay loop>
+    <source src="https://files.catbox.moe/kqtizv.mp3" type="audio/mpeg">
+  </audio>
+
+  <header>
+    <div class="left-buttons">
+      <strong id="username">Xin chào!</strong>
+      <button onclick="confirmLogout()">Đăng xuất</button>
+      <button onclick="confirmDelete()">Xoá tài khoản</button>
+    </div>
+    <div class="right-info">
+      <span id="vnTime"></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>Mục tiêu hôm nay</h2>
+    <textarea id="goalInput" placeholder="Viết mục tiêu của bạn..."></textarea>
+    <input type="date" id="goalDate" />
+    <input type="time" id="goalTime" />
+    <button onclick="saveGoal()">Lưu mục tiêu</button>
+    <button onclick="clearGoalHistory()">🗑️ Xoá lịch sử mục tiêu</button>
+
+    <h3>Lịch sử mục tiêu</h3>
+    <table id="goalHistory">
+      <tr><th>Thời gian</th><th>Mục tiêu</th></tr>
+    </table>
+
+    <h3>Ghi chú nổi bật trong tuần</h3>
+    <table>
+      <tr><th>Thứ</th><th>Ghi chú</th></tr>
+      <tr><td>Thứ 2</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 3</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 4</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 5</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 6</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 7</td><td><input type="text"></td></tr>
+      <tr><td>Chủ Nhật</td><td><input type="text"></td></tr>
+    </table>
+
+    <div style="margin-top: 30px; text-align: center">
+      <button onclick="window.location.href='flashcard.html'">Học cùng Flashcard ➤</button>
+    </div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('username').textContent = `Chào mừng, ${user?.username || 'bạn'}!`;
+
+    function updateVietnamTime() {
+      const now = new Date();
+      const vnNow = now.toLocaleString("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      document.getElementById('vnTime').textContent = vnNow;
+    }
+    setInterval(updateVietnamTime, 1000);
+    updateVietnamTime();
+
+    function confirmLogout() {
+      if (confirm('Bạn có chắc là muốn đăng xuất ra ngoài không?')) {
+        alert('Đăng xuất thành công!');
+        window.location.href = 'index.html';
+      }
+    }
+
+    function confirmDelete() {
+      if (confirm('Bạn có chắc chắn muốn xoá tài khoản này?')) {
+        localStorage.removeItem('user');
+        alert('Tài khoản đã bị xoá!');
+        window.location.href = 'index.html';
+      }
+    }
+
+    function saveGoal() {
+      const text = document.getElementById('goalInput').value;
+      const date = document.getElementById('goalDate').value;
+      const time = document.getElementById('goalTime').value;
+      const vnNow = new Date().toLocaleString("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        hour: '2-digit', minute: '2-digit', second: '2-digit', 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      const table = document.getElementById('goalHistory');
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = vnNow;
+      row.insertCell(1).innerText = text;
+
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+
+      if (date && time) {
+        const target = new Date(`${date}T${time}:00`);
+        const delay = target.getTime() - Date.now();
+        if (delay > 0) {
+          setTimeout(() => {
+            new Notification("⏰ Đã tới hạn hoàn thành mục tiêu!");
+          }, delay);
+        }
+      }
+    }
+
+    function clearGoalHistory() {
+      const table = document.getElementById('goalHistory');
+      while (table.rows.length > 1) {
+        table.deleteRow(1);
+      }
+    }
+  </script>
+</body>
+</html>
