@@ -136,41 +136,59 @@
     }
 
     function saveGoal() {
-      const text = document.getElementById('goalInput').value;
-      const date = document.getElementById('goalDate').value;
-      const time = document.getElementById('goalTime').value;
-      const vnNow = new Date().toLocaleString("vi-VN", {
-        timeZone: "Asia/Ho_Chi_Minh",
-        hour: '2-digit', minute: '2-digit', second: '2-digit', 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
+  const text = document.getElementById('goalInput').value;
+  const date = document.getElementById('goalDate').value;
+  const time = document.getElementById('goalTime').value;
+  const vnNow = new Date().toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    hour: '2-digit', minute: '2-digit', second: '2-digit', 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 
-      const table = document.getElementById('goalHistory');
-      const row = table.insertRow(-1);
-      row.insertCell(0).innerText = vnNow;
-      row.insertCell(1).innerText = text;
+  // Lưu vào bảng
+  const table = document.getElementById('goalHistory');
+  const row = table.insertRow(-1);
+  row.insertCell(0).innerText = vnNow;
+  row.insertCell(1).innerText = text;
 
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission();
-      }
+  // 👉 Lưu vào localStorage
+  let history = JSON.parse(localStorage.getItem('goalHistory')) || [];
+  history.push({ time: vnNow, text });
+  localStorage.setItem('goalHistory', JSON.stringify(history));
 
-      if (date && time) {
-        const target = new Date(`${date}T${time}:00`);
-        const delay = target.getTime() - Date.now();
-        if (delay > 0) {
-          setTimeout(() => {
-            new Notification("⏰ Đã tới hạn hoàn thành mục tiêu!");
-          }, delay);
-        }
-      }
+  // Gửi thông báo nếu có thời gian
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+
+  if (date && time) {
+    const target = new Date(`${date}T${time}:00`);
+    const delay = target.getTime() - Date.now();
+    if (delay > 0) {
+      setTimeout(() => {
+        new Notification("⏰ Đã tới hạn hoàn thành mục tiêu!");
+      }, delay);
     }
+  }
+}
 
-    function clearGoalHistory() {
-      const table = document.getElementById('goalHistory');
-      while (table.rows.length > 1) {
-        table.deleteRow(1);
-      }
-    }
+function loadGoalHistory() {
+  const history = JSON.parse(localStorage.getItem('goalHistory')) || [];
+  const table = document.getElementById('goalHistory');
+  for (let item of history) {
+    const row = table.insertRow(-1);
+    row.insertCell(0).innerText = item.time;
+    row.insertCell(1).innerText = item.text;
+  }
+}
+loadGoalHistory();
+function clearGoalHistory() {
+  const table = document.getElementById('goalHistory');
+  while (table.rows.length > 1) {
+    table.deleteRow(1);
+  }
+  localStorage.removeItem('goalHistory'); // 👉 xoá dữ liệu trong localStorage
+}
   </script>
 </body>
 </html>
