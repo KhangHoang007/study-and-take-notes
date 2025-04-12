@@ -89,15 +89,35 @@
 
     <h3>Ghi chú nổi bật trong tuần</h3>
     <table>
-      <tr><th>Thứ</th><th>Ghi chú</th></tr>
-      <tr><td>Thứ 2</td><td><input type="text"></td></tr>
-      <tr><td>Thứ 3</td><td><input type="text"></td></tr>
-      <tr><td>Thứ 4</td><td><input type="text"></td></tr>
-      <tr><td>Thứ 5</td><td><input type="text"></td></tr>
-      <tr><td>Thứ 6</td><td><input type="text"></td></tr>
-      <tr><td>Thứ 7</td><td><input type="text"></td></tr>
-      <tr><td>Chủ Nhật</td><td><input type="text"></td></tr>
+      <tr><td>Thứ 2</td><td><input type="text" id="note2"></td></tr>
+      <tr><td>Thứ 3</td><td><input type="text" id="note3"></td></tr>
+      <tr><td>Thứ 4</td><td><input type="text" id="note4"></td></tr>
+      <tr><td>Thứ 5</td><td><input type="text" id="note5"></td></tr>
+      <tr><td>Thứ 6</td><td><input type="text" id="note6"></td></tr>
+      <tr><td>Thứ 7</td><td><input type="text" id="note7"></td></tr>
+      <tr><td>Chủ Nhật</td><td><input type="text" id="noteCN"></td></tr>
     </table>
+  <script>
+    const noteIds = ['note2', 'note3', 'note4', 'note5', 'note6', 'note7', 'noteCN'];
+
+noteIds.forEach(id => {
+  const input = document.getElementById(id);
+  input.addEventListener('input', () => {
+    let notes = JSON.parse(localStorage.getItem('weeklyNotes')) || {};
+    notes[id] = input.value;
+    localStorage.setItem('weeklyNotes', JSON.stringify(notes));
+  });
+});
+function loadWeeklyNotes() {
+  const notes = JSON.parse(localStorage.getItem('weeklyNotes')) || {};
+  noteIds.forEach(id => {
+    if (notes[id]) {
+      document.getElementById(id).value = notes[id];
+    }
+  });
+}
+loadWeeklyNotes();
+  </script>
 
     <div style="margin-top: 30px; text-align: center">
       <button onclick="window.location.href='flashcard.html'">Học cùng Flashcard ➤</button>
