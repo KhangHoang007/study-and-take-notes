@@ -87,7 +87,7 @@
       <tr><th>Thời gian</th><th>Mục tiêu</th></tr>
     </table>
 
-    <h3>Ghi chú nổi bật trong tuần</h3>
+    <h3>Lịch trình trong tuần</h3>
     <table>
       <tr><td>Thứ 2</td><td><input type="text" id="note2"></td></tr>
       <tr><td>Thứ 3</td><td><input type="text" id="note3"></td></tr>
@@ -201,14 +201,19 @@ function loadGoalHistory() {
     row.insertCell(1).innerText = item.text;
   }
 }
-loadGoalHistory();
 function clearGoalHistory() {
-  const table = document.getElementById('goalHistory');
-  while (table.rows.length > 1) {
-    table.deleteRow(1);
+  if (confirm("Bạn có muốn xoá lịch sử không?")) {
+    const table = document.getElementById('goalHistory');
+    while (table.rows.length > 1) {
+      table.deleteRow(1);
+    }
+    localStorage.removeItem('goalHistory');
+    alert("🗑️ Lịch sử mục tiêu đã được xoá sạch sẽ!");
+  } else {
+    alert("Đã huỷ xoá lịch sử. Mọi thứ vẫn an toàn nha!");
   }
-  localStorage.removeItem('goalHistory'); // 👉 xoá dữ liệu trong localStorage
 }
+
   </script>
 </body>
 </html>
